@@ -30,6 +30,7 @@ class SettingsViewController: UIViewController {
         var selectedTipPercentageIndex = tipControl.selectedSegmentIndex
         var defaults = NSUserDefaults.standardUserDefaults()
         defaults.setInteger(selectedTipPercentageIndex, forKey: "defaultTip")
+        defaults.setInteger(selectedTipPercentageIndex, forKey: "currentTipIndex")
         defaults.synchronize()
     }
     

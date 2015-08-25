@@ -28,14 +28,22 @@ class ViewController: UIViewController {
     }
 
     override func viewWillAppear(animated: Bool) {
+        // Let's grab our defaults
         var defaults = NSUserDefaults.standardUserDefaults()
-        tipControl.selectedSegmentIndex = defaults.integerForKey("defaultTip")
+        if let currentBillAmount = defaults.objectForKey("currentBillAmount") as? String {
+            billField.text = currentBillAmount
+        } else {
+            billField.text = ""
+        }
+        
+        if billField.text.isEmpty == true {
+            tipControl.selectedSegmentIndex = defaults.integerForKey("defaultTip")
+        } else {
+            tipControl.selectedSegmentIndex = defaults.integerForKey("currentTipIndex")
+        }
+        
         updateUI()
         let tipTotalCenter = tipTotalView.center
-        println("\(tipTotalCenter)")
-        println("\(tipControl.center)")
-        println("\(billField.center)")
-        println("\(dollarSignLabel.center)")
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -55,6 +63,7 @@ class ViewController: UIViewController {
             UIView.animateWithDuration(0.2, animations: { () -> Void in
                 self.dollarSignLabel.alpha = 0.5
                 self.tipControl.alpha = 0
+                // Using brute force, assuming iPhone 5
                 self.tipTotalView.center = CGPoint(x: 160.0, y: 356.0)
                 self.tipControl.center = CGPoint(x: 160.0, y: 266.5)
                 self.billField.center = CGPoint(x: 160.0, y: 124.0)
@@ -64,6 +73,7 @@ class ViewController: UIViewController {
             UIView.animateWithDuration(0.2, animations: { () -> Void in
                 self.dollarSignLabel.alpha = 0
                 self.tipControl.alpha = 1
+                // Using brute force, assuming iPhone 5
                 self.tipTotalView.center = CGPoint(x: 160.0, y: 220.0)
                 self.tipControl.center = CGPoint(x: 160.0, y: 130.5)
                 self.billField.center = CGPoint(x: 160.0, y: 56.0)
@@ -78,7 +88,16 @@ class ViewController: UIViewController {
         totalLabel.text = String(format: "$%.2f", total)
     }
     
+    func updateDefaults() {
+        var defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(billField.text, forKey: "currentBillAmount")
+        defaults.setInteger(tipControl.selectedSegmentIndex, forKey: "currentTipIndex")
+        defaults.synchronize()
+        
+    }
+    
     @IBAction func onEditingChanged(sender: AnyObject) {
+        updateDefaults()
         updateUI()
     }
 
@@ -86,21 +105,13 @@ class ViewController: UIViewController {
         performSegueWithIdentifier("SettingsSegue", sender: self)
     }
 
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let identifer = segue.identifier {
-            switch identifer {
-                case "SettingsSegue":
-                    if let vc = segue.destinationViewController as? SettingsViewController {
-                        // do stuff here to prepare
-                        // outlets are not set yet
-                    }
-                default: break
-            }
-        }
-    }
     
+    // Dismisses the keyboard when combine with a tap gesture on the ViewController
+    /*
     @IBAction func onTap(sender: AnyObject) {
         view.endEditing(true)
     }
+    */
+    
 }
 
